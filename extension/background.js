@@ -1,4 +1,4 @@
-// W2G YouTube Adder — background service worker (Manifest V3)
+// W2G Video Adder — background service worker (Manifest V3)
 // Version is read from manifest.json; see CHANGELOG.md.
 //
 // Watch2Gether API (https://community.w2g.tv/t/watch2gether-api-documentation/133767):

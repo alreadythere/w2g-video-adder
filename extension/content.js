@@ -1,4 +1,4 @@
-// W2G YouTube Adder — content script for youtube.com
+// W2G Video Adder — content script for youtube.com
 // Shows "+ W2G" (add to playlist) and "▶" (play now) buttons when hovering a video thumbnail.
 // Uses one shared floating overlay (in a shadow root), so YouTube's own markup is never modified.
 

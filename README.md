@@ -2,9 +2,8 @@
 
 A Chrome and Firefox extension that sends YouTube videos to your open [Watch2Gether](https://w2g.tv) room in one click.
 You can **queue** a video at the end of the room's current playlist or **play it now**.
-In the browser it appears as **W2G YouTube Adder**.
 
-**Current version: 1.2.0 (2026-11-26).** What changed: [extension/CHANGELOG.md](extension/CHANGELOG.md)
+**Current version: 1.3.0 (2026-11-26).** What changed: [extension/CHANGELOG.md](extension/CHANGELOG.md)
 
 ---
 
@@ -94,7 +93,7 @@ gear → **Pin to Toolbar**).
 - **Supported links:** regular videos (`youtube.com/watch?v=…`), Shorts (`youtube.com/shorts/…`), short links
   (`youtu.be/…`) and mobile links (`m.youtube.com`). Shorts are sent as normal video links. Extra parameters
   such as playlist position, timestamp and tracking codes are stripped.
-- **Right-click menu:** Chrome groups the menu items under **W2G YouTube Adder**. Over the video player itself,
+- **Right-click menu:** Chrome groups the menu items under **W2G Video Adder**. Over the video player itself,
   YouTube shows its own menu; right-click a second time to get Chrome's.
 
 ---
@@ -109,9 +108,9 @@ gear → **Pin to Toolbar**).
 - **Where they work:** on any YouTube video or Shorts page. On other pages they show an error notification.
 - **On a Mac,** `Alt` is the **Option** key.
 - **To change them,** or to set one the browser left blank because another extension already uses that key:
-  - **Chrome:** open `chrome://extensions/shortcuts`, find **W2G YouTube Adder**, click the pencil icon, and press your new keys.
+  - **Chrome:** open `chrome://extensions/shortcuts`, find **W2G Video Adder**, click the pencil icon, and press your new keys.
   - **Firefox:** open `about:addons`, click the gear icon → **Manage Extension Shortcuts**, and type new keys
-    in the boxes under **W2G YouTube Adder**.
+    in the boxes under **W2G Video Adder**.
 - **Check what's active:** hover the **+ Add to playlist** or **▶ Play now** button in the popup. The tooltip shows
   the current shortcut, or "not set".
 - The popup's **Shortcuts** link opens the shortcuts page directly.
@@ -230,7 +229,7 @@ The badge clears after about 4 seconds.
 | Thumbnail button says "! Error" with "Extension was reloaded — refresh this YouTube tab." | You updated or reloaded the extension. Refresh the YouTube tab. |
 | No thumbnail buttons | Reload the YouTube tab, and check that the option is on. YouTube occasionally changes its page layout; if buttons stop appearing for good, the right-click menu and shortcuts still work. |
 | A shortcut does nothing | Check the shortcut settings (see [Keyboard shortcuts](#keyboard-shortcuts)). The browser leaves a shortcut blank if another extension already uses those keys. |
-| Firefox: nothing works, or no thumbnail buttons | Open `about:addons` → **W2G YouTube Adder** → **Permissions** and make sure access to youtube.com and the w2g.tv sites is allowed. |
+| Firefox: nothing works, or no thumbnail buttons | Open `about:addons` → **W2G Video Adder** → **Permissions** and make sure access to youtube.com and the w2g.tv sites is allowed. |
 | Firefox: the add-on is gone after a restart | It was loaded as a temporary add-on. Install a signed copy instead (see [Quick start (Firefox)](#quick-start-firefox)). |
 | The video went to the wrong room | Check the popup's **Target room**. Close other W2G tabs, or use **Always use the room below**. |
 
@@ -255,7 +254,7 @@ Your API key, settings and history are kept.
 
 - **Your API key** is stored only in your browser profile and is sent only to `api.w2g.tv`.
 - **Video titles** are looked up from YouTube's public oEmbed service (`youtube.com/oembed`).
-- **No other data** is collected or sent anywhere.
+- **No other data** is collected or sent anywhere. Full details: [PRIVACY.md](PRIVACY.md).
 - **Never commit your API key** to this repo or share it. Anyone with it can change rooms your account belongs to.
   If it leaks, generate a new one on w2g.tv.
 
@@ -279,6 +278,10 @@ npm run lint:firefox   # Mozilla's add-ons linter on the Firefox build
 npm run start:firefox  # opens Firefox with the add-on in a temporary profile (needs Firefox installed)
 npm run sign:firefox   # signs the Firefox build as an unlisted add-on (needs WEB_EXT_API_KEY / WEB_EXT_API_SECRET)
 ```
+
+**Publishing:** listing text, reviewer notes and categories for addons.mozilla.org are in
+[store/amo-listing.md](store/amo-listing.md). Bump the version in `extension/manifest.json` and run `npm run build`
+before each upload.
 
 **Cross-browser notes:** all API calls go through `const api = globalThis.browser ?? globalThis.chrome`.
 `extension/manifest.json` is the Chrome manifest. `scripts/build.js` derives the Firefox manifest from it:

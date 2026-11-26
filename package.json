@@ -1,6 +1,6 @@
 {
   "name": "w2g-video-adder",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "description": "Chrome and Firefox extension: add YouTube videos to a Watch2Gether room's playlist (or play them now) via right-click, shortcut, or thumbnail buttons.",
   "license": "MIT",

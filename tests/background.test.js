@@ -29,10 +29,10 @@ function setup({ apiStatus = 200, local = {}, withRoomTab = true } = {}) {
 }
 const apiCalls = (env) => env.calls.fetch.filter((f) => f.url.startsWith("https://api.w2g.tv/"));
 
-test("manifest: version 1.2.0, date in version_name, commands declared", () => {
+test("manifest: version 1.3.0, date in version_name, commands declared", () => {
   const env = setup();
   const m = env.chrome.runtime.getManifest();
-  assert.equal(m.version, "1.2.0");
+  assert.equal(m.version, "1.3.0");
   assert.match(m.version_name, /2026-11-26/);
   assert.equal(m.commands["add-current-video"].suggested_key.default, "Alt+Shift+Y");
   assert.equal(m.commands["play-current-video"].suggested_key.default, "Alt+Shift+U");

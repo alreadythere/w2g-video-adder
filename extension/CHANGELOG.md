@@ -1,6 +1,17 @@
 # Changelog
 
-All notable changes to W2G YouTube Adder. Format: [Keep a Changelog](https://keepachangelog.com/), versioning: [SemVer](https://semver.org/).
+All notable changes to W2G Video Adder (named "W2G YouTube Adder" before 1.3.0). Format: [Keep a Changelog](https://keepachangelog.com/), versioning: [SemVer](https://semver.org/).
+
+## [1.3.0] — 2026-11-26
+
+### Changed
+- Renamed to **W2G Video Adder** (was "W2G YouTube Adder") to match the repository and Mozilla's naming guidance
+  for add-ons that work with third-party sites.
+- Added a homepage link (the GitHub repo) to the manifest.
+
+### Added
+- `PRIVACY.md`: what the extension stores, what it sends, and to whom.
+- `store/amo-listing.md`: listing text for addons.mozilla.org.
 
 ## [1.2.0] — 2026-11-26
 

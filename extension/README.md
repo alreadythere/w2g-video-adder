@@ -1,6 +1,6 @@
-# W2G YouTube Adder — quick reference
+# W2G Video Adder — quick reference
 
-**Version 1.2.0 (2026-11-26).** Chrome and Firefox (142+). Changes: [CHANGELOG.md](CHANGELOG.md).
+**Version 1.3.0 (2026-11-26).** Chrome and Firefox (142+). Changes: [CHANGELOG.md](CHANGELOG.md).
 Full guide with options, room selection and troubleshooting: https://github.com/alreadythere/w2g-video-adder#readme
 
 ## Install
