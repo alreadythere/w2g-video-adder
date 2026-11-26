@@ -3,6 +3,9 @@
 // Uses one shared floating overlay (in a shadow root), so YouTube's own markup is never modified.
 
 (() => {
+  // Firefox exposes the promise-based `browser` namespace; Chrome exposes `chrome`.
+  const api = globalThis.browser ?? globalThis.chrome;
+
   if (window.__w2gAdderLoaded) return;
   window.__w2gAdderLoaded = true;
 
@@ -25,30 +28,40 @@
   host.id = "w2g-adder-overlay";
   host.style.cssText = "position:fixed;z-index:2147483647;display:none;top:0;left:0;";
   const root = host.attachShadow({ mode: "open" });
-  // Built with DOM calls (no innerHTML) so YouTube's Trusted Types policy can't block it.
-  const style = document.createElement("style");
-  style.textContent = `
-    .bar { display:flex; gap:4px; }
-    button { all:unset; cursor:pointer; font:600 12px/1 Roboto, Arial, sans-serif; color:#fff;
-             background:rgba(15,15,15,.88); border:1px solid rgba(255,255,255,.25); border-radius:6px;
-             padding:6px 8px; white-space:nowrap; box-shadow:0 1px 4px rgba(0,0,0,.4); }
-    button:hover { background:#e62117; border-color:#e62117; }
-    button.ok { background:#2e7d32; border-color:#2e7d32; }
-    button.warn { background:#f9a825; border-color:#f9a825; color:#111; }
-    button.err { background:#c62828; border-color:#c62828; }`;
+  // Built with DOM calls (no innerHTML) and styled through the CSSOM (element.style) instead of a
+  // <style> tag, so neither YouTube's Trusted Types policy nor a page CSP style-src rule can block it,
+  // in Chrome or Firefox.
+  const BTN_BASE = {
+    all: "unset", cursor: "pointer", font: "600 12px/1 Roboto, Arial, sans-serif", color: "#fff",
+    background: "rgba(15,15,15,.88)", border: "1px solid rgba(255,255,255,.25)", borderRadius: "6px",
+    padding: "6px 8px", whiteSpace: "nowrap", boxShadow: "0 1px 4px rgba(0,0,0,.4)"
+  };
+  const STATE_BG = { "": "rgba(15,15,15,.88)", hover: "#e62117", ok: "#2e7d32", warn: "#f9a825", err: "#c62828" };
+  function paint(b) {
+    const state = b.className || (b._hover ? "hover" : ""); // result states win over hover
+    const bg = STATE_BG[state] ?? STATE_BG[""];
+    b.style.background = bg;
+    b.style.borderColor = state ? bg : "rgba(255,255,255,.25)";
+    b.style.color = state === "warn" ? "#111" : "#fff";
+  }
   const bar = document.createElement("div");
   bar.className = "bar";
+  bar.style.display = "flex";
+  bar.style.gap = "4px";
   const mkBtn = (id, label, title) => {
     const b = document.createElement("button");
     b.id = id;
     b.textContent = label;
     b.title = title;
+    Object.assign(b.style, BTN_BASE);
+    b.addEventListener("mouseenter", () => { b._hover = true; paint(b); });
+    b.addEventListener("mouseleave", () => { b._hover = false; paint(b); });
     bar.appendChild(b);
     return b;
   };
   const btnAdd = mkBtn("add", "+ W2G", "Add to W2G playlist");
   const btnPlay = mkBtn("play", "▶", "Play now in W2G");
-  root.append(style, bar);
+  root.append(bar);
   (document.body || document.documentElement).appendChild(host);
 
   // ----- helpers -----
@@ -133,6 +146,7 @@
       b.textContent = label;
       b.className = "";
       b.title = b === btnAdd ? "Add to W2G playlist" : "Play now in W2G";
+      paint(b);
     }
   }
 
@@ -141,6 +155,7 @@
     b.textContent = label;
     b.className = cls;
     b.title = title;
+    paint(b);
     b._t = setTimeout(resetButtons, ms);
   }
 
@@ -150,7 +165,7 @@
     flash(btn, "…", "", "Sending…", 15000);
     let r;
     try {
-      r = await chrome.runtime.sendMessage({ type: "sendVideo", action, url: v.url, fallbackTitle: v.title, quiet: true });
+      r = await api.runtime.sendMessage({ type: "sendVideo", action, url: v.url, fallbackTitle: v.title, quiet: true });
     } catch (e) {
       r = { ok: false, msg: "Extension was reloaded — refresh this YouTube tab." };
     }
@@ -191,11 +206,11 @@
   document.addEventListener("yt-navigate-start", hide, true);
 
   // ----- settings -----
-  chrome.storage.local.get("showThumbButtons").then(({ showThumbButtons = true }) => {
+  api.storage.local.get("showThumbButtons").then(({ showThumbButtons = true }) => {
     enabled = showThumbButtons;
     if (!enabled) hide();
   });
-  chrome.storage.onChanged.addListener((changes, area) => {
+  api.storage.onChanged.addListener((changes, area) => {
     if (area === "local" && "showThumbButtons" in changes) {
       enabled = changes.showThumbButtons.newValue !== false;
       if (!enabled) hide();

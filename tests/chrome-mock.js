@@ -32,7 +32,7 @@ function storageArea() {
   };
 }
 
-function createEnv({ manifestPath, fetchHandler }) {
+function createEnv({ manifestPath, fetchHandler, namespace = "chrome" }) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   const calls = { fetch: [], notifications: [], menus: [], badge: [], optionsOpened: 0, executeScript: [] };
   const state = { tabs: [], executeScriptResult: null, activeTab: null };
@@ -83,7 +83,8 @@ function createEnv({ manifestPath, fetchHandler }) {
     };
   }
 
-  const ctx = vm.createContext({ chrome, fetch, URL, console, setTimeout: () => 0, clearTimeout: () => {} });
+  // namespace "browser" simulates Firefox (only `browser` defined); "chrome" simulates Chrome.
+  const ctx = vm.createContext({ [namespace]: chrome, fetch, URL, console, setTimeout: () => 0, clearTimeout: () => {} });
   const src = fs.readFileSync(path.join(path.dirname(manifestPath), "background.js"), "utf8");
   vm.runInContext(src, ctx, { filename: "background.js" });
 

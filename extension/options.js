@@ -1,4 +1,14 @@
+// Firefox exposes the promise-based `browser` namespace; Chrome exposes `chrome`.
+const api = globalThis.browser ?? globalThis.chrome;
+
 const $ = (id) => document.getElementById(id);
+
+// Firefox 137+ has commands.openShortcutSettings(); Chrome uses its shortcuts page.
+function openShortcutSettings() {
+  if (api.commands && typeof api.commands.openShortcutSettings === "function") return api.commands.openShortcutSettings();
+  return api.tabs.create({ url: "chrome://extensions/shortcuts" });
+}
+
 
 function parseRoomKey(input) {
   const s = (input || "").trim();
@@ -10,10 +20,10 @@ function parseRoomKey(input) {
 }
 
 async function load() {
-  const mf = chrome.runtime.getManifest();
+  const mf = api.runtime.getManifest();
   $("version").textContent = `v${mf.version_name || mf.version}`;
   const { apiKey = "", mode = "auto", manualKey = "", showThumbButtons = true, dupCheck = true } =
-    await chrome.storage.local.get(["apiKey", "mode", "manualKey", "showThumbButtons", "dupCheck"]);
+    await api.storage.local.get(["apiKey", "mode", "manualKey", "showThumbButtons", "dupCheck"]);
   $("showThumbButtons").checked = showThumbButtons;
   $("dupCheck").checked = dupCheck;
   $("apiKey").value = apiKey;
@@ -24,7 +34,7 @@ async function load() {
 $("save").addEventListener("click", async () => {
   const mode = document.querySelector("input[name=mode]:checked").value;
   const manualKey = parseRoomKey($("manualKey").value);
-  await chrome.storage.local.set({
+  await api.storage.local.set({
     apiKey: $("apiKey").value.trim(), mode, manualKey,
     showThumbButtons: $("showThumbButtons").checked,
     dupCheck: $("dupCheck").checked
@@ -36,7 +46,7 @@ $("save").addEventListener("click", async () => {
 
 $("shortcuts").addEventListener("click", (e) => {
   e.preventDefault();
-  chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
+  openShortcutSettings();
 });
 
 load();

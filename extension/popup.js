@@ -1,5 +1,15 @@
+// Firefox exposes the promise-based `browser` namespace; Chrome exposes `chrome`.
+const api = globalThis.browser ?? globalThis.chrome;
+
 const $ = (id) => document.getElementById(id);
 const HISTORY_SHOWN = 10;
+
+// Firefox 137+ has commands.openShortcutSettings(); Chrome uses its shortcuts page.
+function openShortcutSettings() {
+  if (api.commands && typeof api.commands.openShortcutSettings === "function") return api.commands.openShortcutSettings();
+  return api.tabs.create({ url: "chrome://extensions/shortcuts" });
+}
+
 
 function ago(ts) {
   const m = Math.round((Date.now() - ts) / 60000);
@@ -15,7 +25,7 @@ function showMsg(r) {
 }
 
 async function renderHistory() {
-  const { history = [] } = await chrome.storage.local.get("history");
+  const { history = [] } = await api.storage.local.get("history");
   const ul = $("history");
   ul.textContent = "";
   if (!history.length) {
@@ -53,7 +63,7 @@ async function renderHistory() {
     again.title = "Add to the current room's playlist again (skips the duplicate check)";
     again.addEventListener("click", async () => {
       again.disabled = true;
-      const r = await chrome.runtime.sendMessage({ type: "sendVideo", action: "add", url: h.url, fallbackTitle: h.title, force: true });
+      const r = await api.runtime.sendMessage({ type: "sendVideo", action: "add", url: h.url, fallbackTitle: h.title, force: true });
       showMsg(r);
       again.disabled = false;
       renderHistory();
@@ -66,15 +76,15 @@ async function renderHistory() {
 }
 
 async function init() {
-  const mf = chrome.runtime.getManifest();
+  const mf = api.runtime.getManifest();
   $("version").textContent = `v${mf.version_name || mf.version}`;
 
-  const room = await chrome.runtime.sendMessage({ type: "getRoom" });
+  const room = await api.runtime.sendMessage({ type: "getRoom" });
   $("room").textContent = room ? room.key : "none found";
   $("src").textContent = room ? `via ${room.source}${room.tabTitle ? " — " + room.tabTitle : ""}` :
     "Open your W2G room (reload it once after installing), or set a room in Options.";
 
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const [tab] = await api.tabs.query({ active: true, currentWindow: true });
   const isYt = /^https:\/\/(www\.|m\.)?youtube\.com\/(watch\?|shorts\/)|^https:\/\/youtu\.be\//.test(tab?.url || "");
   for (const id of ["add", "play"]) $(id).disabled = !isYt || !room;
   if (!isYt) $("msg").textContent = "Open a YouTube video to send it from here.";
@@ -84,7 +94,7 @@ async function init() {
       $(action).disabled = true;
       $("msg").style.color = "";
       $("msg").textContent = "Sending…";
-      const r = await chrome.runtime.sendMessage({
+      const r = await api.runtime.sendMessage({
         type: "sendVideo", action, url: tab.url,
         fallbackTitle: (tab.title || "").replace(/\s*-\s*YouTube$/, "")
       });
@@ -96,7 +106,7 @@ async function init() {
 
   // show current shortcut keys in button tooltips
   try {
-    const cmds = await chrome.commands.getAll();
+    const cmds = await api.commands.getAll();
     const key = (name) => cmds.find((c) => c.name === name)?.shortcut || "not set";
     $("add").title = `Shortcut: ${key("add-current-video")}`;
     $("play").title = `Shortcut: ${key("play-current-video")}`;
@@ -107,10 +117,10 @@ async function init() {
 }
 
 $("clear").addEventListener("click", async () => {
-  await chrome.runtime.sendMessage({ type: "clearHistory" });
+  await api.runtime.sendMessage({ type: "clearHistory" });
   renderHistory();
 });
-$("opts").addEventListener("click", () => chrome.runtime.openOptionsPage());
-$("shortcuts").addEventListener("click", () => chrome.tabs.create({ url: "chrome://extensions/shortcuts" }));
+$("opts").addEventListener("click", () => api.runtime.openOptionsPage());
+$("shortcuts").addEventListener("click", () => openShortcutSettings());
 
 init();

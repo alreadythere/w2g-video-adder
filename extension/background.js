@@ -7,6 +7,9 @@
 //   Play now:        POST https://api.w2g.tv/rooms/{streamkey}/sync_update
 //                    { w2g_api_key, item_url }
 
+// Firefox exposes the promise-based `browser` namespace; Chrome exposes `chrome`.
+const api = globalThis.browser ?? globalThis.chrome;
+
 const API_BASE = "https://api.w2g.tv";
 const W2G_TAB_PATTERNS = ["https://w2g.tv/*"];
 const ROOM_KEY_RE = /\/rooms\/([a-z0-9]{8,40})\//i;
@@ -38,17 +41,17 @@ const YT_PAGE_PATTERNS = [
 
 // ---------- Context menus ----------
 
-chrome.runtime.onInstalled.addListener((details) => {
-  chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({ id: MENU.LINK_ADD, title: "Add video to W2G playlist", contexts: ["link"], targetUrlPatterns: YT_LINK_PATTERNS });
-    chrome.contextMenus.create({ id: MENU.LINK_PLAY, title: "Play video now in W2G", contexts: ["link"], targetUrlPatterns: YT_LINK_PATTERNS });
-    chrome.contextMenus.create({ id: MENU.PAGE_ADD, title: "Add this page's video to W2G playlist", contexts: ["page", "video", "frame"], documentUrlPatterns: YT_PAGE_PATTERNS });
-    chrome.contextMenus.create({ id: MENU.PAGE_PLAY, title: "Play this page's video now in W2G", contexts: ["page", "video", "frame"], documentUrlPatterns: YT_PAGE_PATTERNS });
+api.runtime.onInstalled.addListener((details) => {
+  api.contextMenus.removeAll(() => {
+    api.contextMenus.create({ id: MENU.LINK_ADD, title: "Add video to W2G playlist", contexts: ["link"], targetUrlPatterns: YT_LINK_PATTERNS });
+    api.contextMenus.create({ id: MENU.LINK_PLAY, title: "Play video now in W2G", contexts: ["link"], targetUrlPatterns: YT_LINK_PATTERNS });
+    api.contextMenus.create({ id: MENU.PAGE_ADD, title: "Add this page's video to W2G playlist", contexts: ["page", "video", "frame"], documentUrlPatterns: YT_PAGE_PATTERNS });
+    api.contextMenus.create({ id: MENU.PAGE_PLAY, title: "Play this page's video now in W2G", contexts: ["page", "video", "frame"], documentUrlPatterns: YT_PAGE_PATTERNS });
   });
-  if (details.reason === "install") chrome.runtime.openOptionsPage();
+  if (details.reason === "install") api.runtime.openOptionsPage();
 });
 
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+api.contextMenus.onClicked.addListener(async (info, tab) => {
   const isLink = info.menuItemId === MENU.LINK_ADD || info.menuItemId === MENU.LINK_PLAY;
   const action = (info.menuItemId === MENU.LINK_PLAY || info.menuItemId === MENU.PAGE_PLAY) ? "play" : "add";
   const raw = isLink ? info.linkUrl : (info.pageUrl || tab?.url);
@@ -58,9 +61,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
 // ---------- Keyboard shortcuts ----------
 
-chrome.commands.onCommand.addListener(async (command, tab) => {
+api.commands.onCommand.addListener(async (command, tab) => {
   if (command !== "add-current-video" && command !== "play-current-video") return;
-  if (!tab) [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!tab) [tab] = await api.tabs.query({ active: true, lastFocusedWindow: true });
   const action = command === "play-current-video" ? "play" : "add";
   if (!tab || !extractVideoId(tab.url)) {
     notifyResult({ ok: false, msg: "The shortcut works on a YouTube video page. Open a video first." });
@@ -72,7 +75,7 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
 // ---------- Room (streamkey) detection ----------
 // The W2G room page calls w2g-api.w2g.tv/rooms/{streamkey}/room_info, /join_room, /sync_state…
 
-chrome.webRequest.onBeforeRequest.addListener(
+api.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId < 0) return;
     const m = details.url.match(ROOM_KEY_RE);
@@ -81,25 +84,25 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ["https://w2g-api.w2g.tv/rooms/*"] }
 );
 
-chrome.tabs.onRemoved.addListener(async (tabId) => {
-  const { roomsByTab = {} } = await chrome.storage.session.get("roomsByTab");
+api.tabs.onRemoved.addListener(async (tabId) => {
+  const { roomsByTab = {} } = await api.storage.session.get("roomsByTab");
   if (roomsByTab[tabId]) {
     delete roomsByTab[tabId];
-    await chrome.storage.session.set({ roomsByTab });
+    await api.storage.session.set({ roomsByTab });
   }
 });
 
 async function rememberRoom(tabId, key) {
-  const { roomsByTab = {} } = await chrome.storage.session.get("roomsByTab");
+  const { roomsByTab = {} } = await api.storage.session.get("roomsByTab");
   if (roomsByTab[tabId]?.key === key) return;
   roomsByTab[tabId] = { key, ts: Date.now() };
-  await chrome.storage.session.set({ roomsByTab });
+  await api.storage.session.set({ roomsByTab });
 }
 
 // For room tabs opened before the extension was installed: scan resource-timing entries.
 async function scanTabForRoomKey(tabId) {
   try {
-    const [res] = await chrome.scripting.executeScript({
+    const [res] = await api.scripting.executeScript({
       target: { tabId },
       world: "MAIN",
       func: () => {
@@ -122,13 +125,13 @@ async function scanTabForRoomKey(tabId) {
 
 async function resolveRoom() {
   const { mode = "auto", manualKey = "", lastRoom = "" } =
-    await chrome.storage.local.get(["mode", "manualKey", "lastRoom"]);
+    await api.storage.local.get(["mode", "manualKey", "lastRoom"]);
 
   if (mode === "manual" && manualKey) return { key: manualKey, source: "manual" };
 
-  const tabs = await chrome.tabs.query({ url: W2G_TAB_PATTERNS });
+  const tabs = await api.tabs.query({ url: W2G_TAB_PATTERNS });
   tabs.sort((a, b) => (b.lastAccessed || 0) - (a.lastAccessed || 0));
-  const { roomsByTab = {} } = await chrome.storage.session.get("roomsByTab");
+  const { roomsByTab = {} } = await api.storage.session.get("roomsByTab");
 
   for (const t of tabs) {
     let key = roomsByTab[t.id]?.key;
@@ -178,19 +181,19 @@ async function fetchTitle(watchUrl) {
 // ---------- History & duplicate check ----------
 
 async function getHistory() {
-  const { history = [] } = await chrome.storage.local.get("history");
+  const { history = [] } = await api.storage.local.get("history");
   return history;
 }
 
 async function recordHistory(entry) {
   const history = await getHistory();
   history.unshift(entry);
-  await chrome.storage.local.set({ history: history.slice(0, HISTORY_MAX) });
+  await api.storage.local.set({ history: history.slice(0, HISTORY_MAX) });
 }
 
 // Returns { duplicate: false } or { duplicate: true, prev } and arms the "repeat to force" window.
 async function checkDuplicate(id, room) {
-  const { dupCheck = true } = await chrome.storage.local.get("dupCheck");
+  const { dupCheck = true } = await api.storage.local.get("dupCheck");
   if (!dupCheck) return { duplicate: false };
 
   const now = Date.now();
@@ -199,12 +202,12 @@ async function checkDuplicate(id, room) {
   );
   if (!prev) return { duplicate: false };
 
-  const { pendingDup } = await chrome.storage.session.get("pendingDup");
+  const { pendingDup } = await api.storage.session.get("pendingDup");
   if (pendingDup && pendingDup.id === id && pendingDup.room === room && now - pendingDup.ts < FORCE_WINDOW_MS) {
-    await chrome.storage.session.remove("pendingDup");
+    await api.storage.session.remove("pendingDup");
     return { duplicate: false, forced: true };
   }
-  await chrome.storage.session.set({ pendingDup: { id, room, ts: now } });
+  await api.storage.session.set({ pendingDup: { id, room, ts: now } });
   return { duplicate: true, prev };
 }
 
@@ -223,9 +226,9 @@ async function sendVideo(rawUrl, { action = "add", fallbackTitle = "", force = f
   if (!id) return { ok: false, msg: "That doesn't look like a YouTube video link." };
   const url = `https://www.youtube.com/watch?v=${id}`;
 
-  const { apiKey = "" } = await chrome.storage.local.get("apiKey");
+  const { apiKey = "" } = await api.storage.local.get("apiKey");
   if (!apiKey) {
-    chrome.runtime.openOptionsPage();
+    api.runtime.openOptionsPage();
     return { ok: false, msg: "Set your W2G API key in the extension options first." };
   }
 
@@ -273,7 +276,7 @@ async function sendVideo(rawUrl, { action = "add", fallbackTitle = "", force = f
     return { ok: false, msg: `W2G returned ${res.status}.${hint} ${bodyText.slice(0, 120)}`.trim() };
   }
 
-  await chrome.storage.local.set({ lastRoom: room.key });
+  await api.storage.local.set({ lastRoom: room.key });
   await recordHistory({ id, url, title, room: room.key, action, ts: Date.now() });
   const verb = action === "play" ? "Now playing" : "Added";
   return { ok: true, action, title, msg: `${verb} “${title}” in room ${room.key} (${room.source}).` };
@@ -283,11 +286,11 @@ async function sendVideo(rawUrl, { action = "add", fallbackTitle = "", force = f
 
 function notifyResult({ ok, msg, duplicate, action }, { quiet = false } = {}) {
   const color = ok ? "#2e7d32" : duplicate ? "#f9a825" : "#c62828";
-  chrome.action.setBadgeBackgroundColor({ color });
-  chrome.action.setBadgeText({ text: ok ? "✓" : duplicate ? "?" : "!" });
-  setTimeout(() => chrome.action.setBadgeText({ text: "" }), 4000);
+  api.action.setBadgeBackgroundColor({ color });
+  api.action.setBadgeText({ text: ok ? "✓" : duplicate ? "?" : "!" });
+  setTimeout(() => api.action.setBadgeText({ text: "" }), 4000);
   if (quiet) return; // thumbnail buttons show their own inline result
-  chrome.notifications.create({
+  api.notifications.create({
     type: "basic",
     iconUrl: "icons/icon128.png",
     title: ok ? (action === "play" ? "Playing in W2G" : "Added to W2G") : duplicate ? "Already in W2G playlist?" : "W2G: couldn't send video",
@@ -297,7 +300,7 @@ function notifyResult({ ok, msg, duplicate, action }, { quiet = false } = {}) {
 
 // ---------- Messages from popup / content script ----------
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async () => {
     if (msg.type === "getRoom") {
       sendResponse(await resolveRoom());
@@ -310,7 +313,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       notifyResult(r, { quiet: !!msg.quiet });
       sendResponse(r);
     } else if (msg.type === "clearHistory") {
-      await chrome.storage.local.set({ history: [] });
+      await api.storage.local.set({ history: [] });
       sendResponse({ ok: true });
     } else {
       sendResponse(null);

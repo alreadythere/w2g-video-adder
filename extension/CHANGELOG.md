@@ -2,6 +2,21 @@
 
 All notable changes to W2G YouTube Adder. Format: [Keep a Changelog](https://keepachangelog.com/), versioning: [SemVer](https://semver.org/).
 
+## [1.2.0] — 2026-11-26
+
+### Added
+- **Firefox support** (Firefox 142+, desktop). `npm run build` creates `dist/firefox/` and a Firefox zip from the
+  same source as the Chrome version. The Firefox manifest uses a background event page, an add-on ID, and Mozilla's
+  required data-collection declaration (video link, page title fallback, W2G API key — all sent only to W2G).
+- `npm run lint:firefox` (Mozilla's add-ons linter), `npm run start:firefox` (run in a temporary Firefox profile) and
+  `npm run sign:firefox` (sign as an unlisted add-on for permanent install).
+- Popup and Options "Shortcuts" link opens Firefox's shortcut manager on Firefox.
+
+### Changed
+- All extension API calls go through one `browser`/`chrome` namespace shim, so one codebase runs in both browsers.
+- Thumbnail buttons are styled directly from script instead of an injected `<style>` tag, so a site's
+  security policy can't strip their styling in either browser. They look the same as before.
+
 ## [1.1.0] — 2026-11-26
 
 ### Added

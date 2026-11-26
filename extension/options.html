@@ -21,7 +21,7 @@
   <label for="apiKey">Watch2Gether API key</label>
   <input id="apiKey" type="password" autocomplete="off" spellcheck="false">
   <div class="hint">On w2g.tv: log in → <b>Edit Profile</b> → bottom of the page → <b>New</b> to generate a key.
-    It's stored only in this browser profile (<code>chrome.storage.local</code>). Treat it like a password.</div>
+    It's stored only in this browser profile (extension local storage). Treat it like a password.</div>
 
   <label>Which room to add to</label>
   <div class="row">
@@ -38,7 +38,7 @@
   <label style="font-weight:400;margin-top:4px"><input type="checkbox" id="showThumbButtons"> Show "+ W2G" / "▶" buttons when hovering YouTube thumbnails</label>
   <label style="font-weight:400;margin-top:4px"><input type="checkbox" id="dupCheck"> Warn before adding a video already added to the same room in the last 12 hours</label>
   <div class="hint">Keyboard shortcuts (default Alt+Shift+Y add, Alt+Shift+U play now) can be changed at
-    <a href="#" id="shortcuts">chrome://extensions/shortcuts</a>.</div>
+    <a href="#" id="shortcuts">your browser's extension shortcut settings</a>.</div>
 
   <button id="save">Save</button><span id="status"></span>
 

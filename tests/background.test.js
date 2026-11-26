@@ -1,4 +1,4 @@
-const test = require("node:test");
+const { test, describe } = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("path");
 const { createEnv } = require("./chrome-mock");
@@ -10,9 +10,12 @@ const WATCH = `https://www.youtube.com/watch?v=${VID}`;
 const ADD_EP = `https://api.w2g.tv/rooms/${KEY}/playlists/current/playlist_items/sync_update`;
 const PLAY_EP = `https://api.w2g.tv/rooms/${KEY}/sync_update`;
 
+for (const NS of ["chrome", "browser"]) describe(`[${NS} namespace]`, () => {
+
 function setup({ apiStatus = 200, local = {}, withRoomTab = true } = {}) {
   const env = createEnv({
     manifestPath: MANIFEST,
+    namespace: NS,
     fetchHandler: (req) => {
       if (req.url.startsWith("https://www.youtube.com/oembed")) return { status: 200, json: { title: "Never Gonna Give You Up" } };
       if (req.url.startsWith("https://api.w2g.tv/")) return { status: apiStatus, json: {} };
@@ -26,10 +29,10 @@ function setup({ apiStatus = 200, local = {}, withRoomTab = true } = {}) {
 }
 const apiCalls = (env) => env.calls.fetch.filter((f) => f.url.startsWith("https://api.w2g.tv/"));
 
-test("manifest: version 1.1.0, date in version_name, commands declared", () => {
+test("manifest: version 1.2.0, date in version_name, commands declared", () => {
   const env = setup();
   const m = env.chrome.runtime.getManifest();
-  assert.equal(m.version, "1.1.0");
+  assert.equal(m.version, "1.2.0");
   assert.match(m.version_name, /2026-11-26/);
   assert.equal(m.commands["add-current-video"].suggested_key.default, "Alt+Shift+Y");
   assert.equal(m.commands["play-current-video"].suggested_key.default, "Alt+Shift+U");
@@ -214,4 +217,6 @@ test("errors: missing key opens options; 403 gives membership hint; no room; bad
   r = await env.message({ type: "sendVideo", action: "add", url: "https://www.youtube.com/@channel" });
   assert.match(r.msg, /doesn't look like a YouTube video/);
   assert.equal(apiCalls(env).length, 0);
+});
+
 });

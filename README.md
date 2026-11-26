@@ -1,15 +1,16 @@
 # W2G Video Adder
 
-A Chrome extension that sends YouTube videos to your open [Watch2Gether](https://w2g.tv) room in one click.
+A Chrome and Firefox extension that sends YouTube videos to your open [Watch2Gether](https://w2g.tv) room in one click.
 You can **queue** a video at the end of the room's current playlist or **play it now**.
-In Chrome it appears as **W2G YouTube Adder**.
+In the browser it appears as **W2G YouTube Adder**.
 
-**Current version: 1.1.0 (2026-11-26).** What changed: [extension/CHANGELOG.md](extension/CHANGELOG.md)
+**Current version: 1.2.0 (2026-11-26).** What changed: [extension/CHANGELOG.md](extension/CHANGELOG.md)
 
 ---
 
 ## Contents
-- [Quick start](#quick-start)
+- [Quick start (Chrome)](#quick-start-chrome)
+- [Quick start (Firefox)](#quick-start-firefox)
 - [Ways to send a video](#ways-to-send-a-video)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 - [Thumbnail buttons](#thumbnail-buttons)
@@ -26,7 +27,9 @@ In Chrome it appears as **W2G YouTube Adder**.
 
 ---
 
-## Quick start
+## Quick start (Chrome)
+
+Works in Chrome and other Chromium browsers (Edge, Brave).
 
 1. **Get the code.** Clone this repo, or click **Code → Download ZIP** on GitHub and unzip it somewhere you'll keep it.
 2. **Load it into Chrome.**
@@ -43,6 +46,36 @@ In Chrome it appears as **W2G YouTube Adder**.
 6. **Pin the extension** (puzzle-piece icon in the toolbar → pin) so you can see its badge and open the popup.
 
 > Your W2G account (the one the API key belongs to) must be a member of the room you're sending to.
+
+---
+
+## Quick start (Firefox)
+
+Needs **Firefox 142 or newer** (desktop). Firefox uses its own build of the extension, made from the same code.
+
+**1. Build it** (needs [Node.js](https://nodejs.org) 20+):
+```bash
+git clone https://github.com/alreadythere/w2g-video-adder
+cd w2g-video-adder
+npm install
+npm run build
+```
+This creates the `dist/firefox/` folder and `dist/w2g-video-adder-firefox-v<version>.zip`.
+
+**2. Install it.** Regular Firefox only keeps add-ons that Mozilla has signed, so pick one:
+
+| Option | Lasts | How |
+|---|---|---|
+| **Temporary** (quickest) | Until Firefox restarts | Open `about:debugging` → **This Firefox** → **Load Temporary Add-on…** → pick `dist/firefox/manifest.json` |
+| **Signed, private** (recommended) | Permanently | Sign it yourself as an *unlisted* add-on (it won't appear on Mozilla's site). Create API credentials at [addons.mozilla.org → Developer Hub → Manage API Keys](https://addons.mozilla.org/developers/addon/api/key/), set them as the `WEB_EXT_API_KEY` and `WEB_EXT_API_SECRET` environment variables, then run `npm run sign:firefox`. Open the signed `.xpi` it saves in `dist/` with Firefox to install it. |
+| **Unsigned** | Permanently | Only in Firefox Developer Edition, Nightly or ESR: set `xpinstall.signatures.required` to `false` in `about:config`, then open the zip from `dist/` with Firefox. |
+
+**3. Set it up.** Firefox shows what the add-on can access and the data it sends (the video link, the page title
+as a fallback, and your W2G API key, all sent only to W2G). Then follow steps 3–6 of the Chrome quick start:
+API key in Options, reload your W2G room tab and YouTube tabs, and pin the icon (Extensions puzzle-piece button →
+gear → **Pin to Toolbar**).
+
+> Never paste your AMO API credentials or W2G API key into the repo or into an issue.
 
 ---
 
@@ -75,8 +108,10 @@ In Chrome it appears as **W2G YouTube Adder**.
 
 - **Where they work:** on any YouTube video or Shorts page. On other pages they show an error notification.
 - **On a Mac,** `Alt` is the **Option** key.
-- **To change them,** or to set one Chrome left blank because another extension already uses that key:
-  open `chrome://extensions/shortcuts`, find **W2G YouTube Adder**, click the pencil icon, and press your new keys.
+- **To change them,** or to set one the browser left blank because another extension already uses that key:
+  - **Chrome:** open `chrome://extensions/shortcuts`, find **W2G YouTube Adder**, click the pencil icon, and press your new keys.
+  - **Firefox:** open `about:addons`, click the gear icon → **Manage Extension Shortcuts**, and type new keys
+    in the boxes under **W2G YouTube Adder**.
 - **Check what's active:** hover the **+ Add to playlist** or **▶ Play now** button in the popup. The tooltip shows
   the current shortcut, or "not set".
 - The popup's **Shortcuts** link opens the shortcuts page directly.
@@ -119,7 +154,7 @@ Click the extension icon to open it:
   - **Copy link:** copies the YouTube link.
   - **Send again:** adds it to the current room's playlist again, skipping the duplicate check.
   - **Clear:** empties the history.
-- **Footer:** the version and date, plus **Shortcuts** and **Options** links.
+- **Footer:** the version (plus release date in Chrome), and **Shortcuts** and **Options** links.
 
 The extension keeps the last 50 sends. History is stored only in your browser.
 
@@ -194,16 +229,23 @@ The badge clears after about 4 seconds.
 | "That doesn't look like a YouTube video link." | The link is a channel, playlist or other non-video page. |
 | Thumbnail button says "! Error" with "Extension was reloaded — refresh this YouTube tab." | You updated or reloaded the extension. Refresh the YouTube tab. |
 | No thumbnail buttons | Reload the YouTube tab, and check that the option is on. YouTube occasionally changes its page layout; if buttons stop appearing for good, the right-click menu and shortcuts still work. |
-| A shortcut does nothing | Check `chrome://extensions/shortcuts`. Chrome leaves a shortcut blank if another extension already uses those keys. |
+| A shortcut does nothing | Check the shortcut settings (see [Keyboard shortcuts](#keyboard-shortcuts)). The browser leaves a shortcut blank if another extension already uses those keys. |
+| Firefox: nothing works, or no thumbnail buttons | Open `about:addons` → **W2G YouTube Adder** → **Permissions** and make sure access to youtube.com and the w2g.tv sites is allowed. |
+| Firefox: the add-on is gone after a restart | It was loaded as a temporary add-on. Install a signed copy instead (see [Quick start (Firefox)](#quick-start-firefox)). |
 | The video went to the wrong room | Check the popup's **Target room**. Close other W2G tabs, or use **Always use the room below**. |
 
 ---
 
 ## Updating
 
+**Chrome:**
 1. Replace the files in your `extension` folder with the new ones (or `git pull`).
 2. On `chrome://extensions`, click the **⟳** reload icon on the extension's card.
 3. Refresh your W2G room tab and YouTube tabs.
+
+**Firefox:** `git pull`, `npm run build`, then reload the temporary add-on in `about:debugging`. If you use a
+signed copy, run `npm run sign:firefox` again and open the new `.xpi`. Firefox needs the version number in
+`extension/manifest.json` to go up before it will sign a new copy.
 
 Your API key, settings and history are kept.
 
@@ -211,7 +253,7 @@ Your API key, settings and history are kept.
 
 ## Privacy and your API key
 
-- **Your API key** is stored only in your Chrome profile and is sent only to `api.w2g.tv`.
+- **Your API key** is stored only in your browser profile and is sent only to `api.w2g.tv`.
 - **Video titles** are looked up from YouTube's public oEmbed service (`youtube.com/oembed`).
 - **No other data** is collected or sent anywhere.
 - **Never commit your API key** to this repo or share it. Anyone with it can change rooms your account belongs to.
@@ -222,16 +264,26 @@ Your API key, settings and history are kept.
 ## Development
 
 ```
-extension/   the Chrome extension (load this folder in Chrome)
-tests/       unit tests (mocked chrome.*) and an end-to-end test in real Chrome
+extension/   the extension source (Chrome manifest; load this folder in Chrome)
+scripts/     build.js: makes dist/chrome and dist/firefox (+ zips) from extension/
+tests/       unit tests (mocked browser APIs), build tests, end-to-end test in real Chrome
+dist/        build output (git-ignored)
 ```
 
 ```bash
 npm install
-npm test              # 19 unit tests for the background worker (Node 20+)
-npm run test:e2e      # loads extension/ into real Chrome against a local mock of YouTube + W2G
-npm run package       # zips extension/ for distribution
+npm test               # 42 tests: background logic under Chrome's and Firefox's API namespaces, plus the build
+npm run test:e2e       # loads extension/ into real Chrome against a local mock of YouTube + W2G
+npm run build          # dist/chrome, dist/firefox and a zip for each
+npm run lint:firefox   # Mozilla's add-ons linter on the Firefox build
+npm run start:firefox  # opens Firefox with the add-on in a temporary profile (needs Firefox installed)
+npm run sign:firefox   # signs the Firefox build as an unlisted add-on (needs WEB_EXT_API_KEY / WEB_EXT_API_SECRET)
 ```
+
+**Cross-browser notes:** all API calls go through `const api = globalThis.browser ?? globalThis.chrome`.
+`extension/manifest.json` is the Chrome manifest. `scripts/build.js` derives the Firefox manifest from it:
+background event page instead of a service worker, `options_ui`, the gecko add-on ID, minimum version 142,
+and data-collection permissions.
 
 - **Browser:** the end-to-end test needs Chrome or Chrome for Testing. Set `CHROME_PATH` to its location; the
   default is `/usr/bin/google-chrome`.
