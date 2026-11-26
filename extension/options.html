@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>W2G Video Adder — Options</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; max-width: 620px; margin: 32px auto; padding: 0 16px; color: #222; }
+  h1 { font-size: 20px; }
+  label { display: block; font-weight: 600; margin-top: 18px; }
+  input[type=text], input[type=password] { width: 100%; padding: 8px; box-sizing: border-box; font: inherit; }
+  .hint { color: #666; font-size: 12.5px; }
+  .row { display: flex; gap: 16px; margin-top: 6px; }
+  button { margin-top: 20px; padding: 8px 18px; font: inherit; cursor: pointer; }
+  #status { margin-left: 10px; color: #2e7d32; }
+  code { background: #f2f2f2; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <h1>W2G Video Adder <span id="version" style="font-size:13px;font-weight:400;color:#777"></span></h1>
+
+  <label for="apiKey">Watch2Gether API key</label>
+  <input id="apiKey" type="password" autocomplete="off" spellcheck="false">
+  <div class="hint">On w2g.tv: log in → <b>Edit Profile</b> → bottom of the page → <b>New</b> to generate a key.
+    It's stored only in this browser profile (extension local storage). Treat it like a password.</div>
+
+  <label>Which room to add to</label>
+  <div class="row">
+    <label style="font-weight:400;margin:0"><input type="radio" name="mode" value="auto"> Auto-detect from my open W2G tab</label>
+    <label style="font-weight:400;margin:0"><input type="radio" name="mode" value="manual"> Always use the room below</label>
+  </div>
+
+  <label for="manualKey">Room streamkey or room URL (optional)</label>
+  <input id="manualKey" type="text" spellcheck="false" placeholder="e.g. https://w2g.tv/rooms/myroom-abc123… or abc123…">
+  <div class="hint">Used when "Always use" is selected, or as a fallback when no room tab is open.
+    The streamkey is the last part of a <code>w2g.tv/rooms/…</code> link.</div>
+
+  <label>Extras</label>
+  <label style="font-weight:400;margin-top:4px"><input type="checkbox" id="showThumbButtons"> Show "+ W2G" / "▶" buttons when hovering YouTube thumbnails</label>
+  <label style="font-weight:400;margin-top:4px"><input type="checkbox" id="dupCheck"> Warn before adding a video already added to the same room in the last 12 hours</label>
+  <div class="hint">Keyboard shortcuts (default Alt+Shift+Y add, Alt+Shift+U play now) can be changed at
+    <a href="#" id="shortcuts">your browser's extension shortcut settings</a>.</div>
+
+  <button id="save">Save</button><span id="status"></span>
+
+  <script src="options.js"></script>
+</body>
+</html>
