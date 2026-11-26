@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Demo video feed</title>
+<!-- Neutral, made-up video feed used only to take store screenshots of the real extension UI.
+     Thumbnails are generated SVGs; titles and channels are invented. -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0f0f0f; color: #f1f1f1; font-family: Roboto, Arial, sans-serif; }
+  .banner { height: 96px; display: flex; align-items: center; justify-content: center; gap: 14px;
+            background: linear-gradient(90deg, #b3120c, #e62117 55%, #ff5a3c); color: #fff;
+            font-size: 30px; font-weight: 700; letter-spacing: .2px; }
+  .banner small { font-size: 20px; font-weight: 400; opacity: .95; }
+  .bar { height: 56px; display: flex; align-items: center; padding: 0 28px; gap: 16px; border-bottom: 1px solid #272727; }
+  .search { margin-left: auto; margin-right: auto; width: 520px; height: 38px; border: 1px solid #303030; border-radius: 20px;
+            background: #121212; color: #888; display: flex; align-items: center; padding: 0 16px; font-size: 15px; }
+  .chips { display: flex; gap: 10px; padding: 14px 28px 4px; }
+  .chip { background: #272727; border-radius: 8px; padding: 7px 12px; font-size: 14px; }
+  .chip.on { background: #f1f1f1; color: #0f0f0f; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 18px; padding: 16px 28px; }
+  .card a.thumb { display: block; position: relative; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; }
+  .card img { width: 100%; height: 100%; display: block; }
+  .dur { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.8); color: #fff; font-size: 12px; font-weight: 500; padding: 2px 5px; border-radius: 4px; }
+  .meta { display: flex; gap: 12px; margin-top: 10px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; flex: none; }
+  h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .sub { color: #aaa; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="banner">Send any video to your Watch2Gether room <small>— hover a thumbnail, click + W2G or ▶</small></div>
+<div class="bar"><div class="search">Search</div></div>
+<div class="chips"><span class="chip on">All</span><span class="chip">Music</span><span class="chip">Gaming</span><span class="chip">Cooking</span><span class="chip">Live</span><span class="chip">Recently uploaded</span></div>
+<div class="grid" id="grid"></div>
+<script>
+  const V = [
+    ["DEMOvid0001", "Synthwave Night Drive — 1 Hour Mix", "Neon Highway", "312K views · 2 days ago", "11:58:20", ["#3a0ca3", "#f72585"]],
+    ["DEMOvid0002", "Ramen From Scratch: 12-Hour Broth", "Kitchen Lab", "1.1M views · 1 week ago", "18:42", ["#f77f00", "#fcbf49"]],
+    ["DEMOvid0003", "Retro Handheld Showdown 2026", "Pocket Pixels", "87K views · 5 hours ago", "24:15", ["#0077b6", "#90e0ef"]],
+    ["DEMOvid0004", "Morning Jazz Café — Live Session", "Blue Note Room", "45K views · 3 days ago", "1:02:07", ["#2d6a4f", "#95d5b2"]],
+    ["DEMOvid0005", "Garage Workshop Build in 10 Minutes", "Weekend Maker", "230K views · 1 month ago", "10:03", ["#6c584c", "#dda15e"]],
+    ["DEMOvid0006", "Trail Run at Sunrise — Full Route", "Ridge Runner", "19K views · 6 days ago", "32:48", ["#9d0208", "#ffba08"]]
+  ];
+  const svg = (c, i) => "data:image/svg+xml," + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+     <stop offset='0' stop-color='${c[0]}'/><stop offset='1' stop-color='${c[1]}'/></linearGradient></defs>
+     <rect width='320' height='180' fill='url(#g)'/>
+     <circle cx='${70 + i * 37 % 180}' cy='${60 + i * 23 % 70}' r='${38 + i * 7}' fill='rgba(255,255,255,.16)'/>
+     <rect x='${150 - i * 11}' y='${95 - i * 5}' width='${120 + i * 6}' height='${40 + i * 3}' rx='10' fill='rgba(0,0,0,.18)'/>
+     <polygon points='145,70 145,110 180,90' fill='rgba(255,255,255,.75)'/></svg>`);
+  document.getElementById("grid").innerHTML = V.map(([id, t, ch, st, d, c], i) => `
+    <div class="card"><a class="thumb" id="t${i}" href="/watch?v=${id}" title="${t}"><img src="${svg(c, i)}"><span class="dur">${d}</span></a>
+    <div class="meta"><div class="avatar" style="background:linear-gradient(135deg,${c[1]},${c[0]})"></div>
+    <div><h3>${t}</h3><div class="sub">${ch}</div><div class="sub">${st}</div></div></div></div>`).join("");
+</script>
+</body>
+</html>

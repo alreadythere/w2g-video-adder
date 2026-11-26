@@ -5,6 +5,15 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOM_KEY = "lslmockroom1234567";
+// Titles for the made-up videos on /demo (store screenshots).
+const DEMO_TITLES = {
+  DEMOvid0001: "Synthwave Night Drive — 1 Hour Mix",
+  DEMOvid0002: "Ramen From Scratch: 12-Hour Broth",
+  DEMOvid0003: "Retro Handheld Showdown 2026",
+  DEMOvid0004: "Morning Jazz Café — Live Session",
+  DEMOvid0005: "Garage Workshop Build in 10 Minutes",
+  DEMOvid0006: "Trail Run at Sunrise — Full Route"
+};
 const log = [];
 
 const YT_HOME = `<!doctype html><html><head><title>YouTube</title>
@@ -61,6 +70,7 @@ const server = https.createServer(
     req.on("end", () => {
       if (host === "www.youtube.com") {
         if (url.pathname === "/") return send(res, 200, "text/html", YT_HOME);
+        if (url.pathname === "/demo") return send(res, 200, "text/html", fs.readFileSync(path.join(__dirname, "fixtures", "demo-home.html"), "utf8"));
         if (url.pathname === "/thumb.svg") {
           const c = "#" + (url.searchParams.get("c") || "999");
           return send(res, 200, "image/svg+xml", `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><rect width="320" height="180" fill="${c}"/></svg>`);
@@ -68,7 +78,7 @@ const server = https.createServer(
         if (url.pathname === "/watch") return send(res, 200, "text/html", `<!doctype html><title>Mock Watch ${url.searchParams.get("v")} - YouTube</title><body><h1>Watch page</h1></body>`);
         if (url.pathname === "/oembed") {
           const v = new URL(url.searchParams.get("url")).searchParams.get("v");
-          return send(res, 200, "application/json", JSON.stringify({ title: `oEmbed title for ${v}` }));
+          return send(res, 200, "application/json", JSON.stringify({ title: DEMO_TITLES[v] || `oEmbed title for ${v}` }));
         }
       }
       if (host === "w2g.tv" && url.pathname.startsWith("/en/room")) return send(res, 200, "text/html", W2G_ROOM);
