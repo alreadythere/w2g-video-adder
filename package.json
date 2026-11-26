@@ -1,0 +1,15 @@
+{
+  "name": "w2g-video-adder",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Chrome extension: add YouTube videos to a Watch2Gether room's playlist (or play them now) via right-click, shortcut, or thumbnail buttons.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/background.test.js",
+    "test:e2e": "node tests/e2e.js",
+    "package": "cd extension && zip -r ../w2g-video-adder-v$npm_package_version.zip . -x '.*'"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^23.0.0"
+  }
+}

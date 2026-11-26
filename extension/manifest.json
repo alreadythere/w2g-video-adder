@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "W2G YouTube Adder",
+  "version": "1.1.0",
+  "version_name": "1.1.0 (2026-11-26)",
+  "description": "Add YouTube videos to your Watch2Gether room's playlist, or play them now, from the right-click menu, a shortcut, or thumbnail buttons.",
+  "permissions": ["contextMenus", "storage", "scripting", "webRequest", "notifications", "tabs"],
+  "host_permissions": [
+    "https://api.w2g.tv/*",
+    "https://w2g.tv/*",
+    "https://w2g-api.w2g.tv/*",
+    "https://www.youtube.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "commands": {
+    "add-current-video": {
+      "suggested_key": { "default": "Alt+Shift+Y" },
+      "description": "Add the current YouTube video to the W2G playlist"
+    },
+    "play-current-video": {
+      "suggested_key": { "default": "Alt+Shift+U" },
+      "description": "Play the current YouTube video now in W2G"
+    }
+  },
+  "action": {
+    "default_title": "W2G YouTube Adder",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png" }
+  },
+  "options_page": "options.html",
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+}

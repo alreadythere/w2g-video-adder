@@ -1,0 +1,6 @@
+node_modules/
+tests/*.pem
+tests/shots/
+*.zip
+.DS_Store
+Thumbs.db
