@@ -2,6 +2,14 @@
 
 All notable changes to W2G Video Adder (named "W2G YouTube Adder" before 1.3.0). Format: [Keep a Changelog](https://keepachangelog.com/), versioning: [SemVer](https://semver.org/).
 
+## [1.3.1] — 2026-11-26
+
+### Changed
+- Shortened the extension description to 132 characters, the Chrome Web Store's limit. No code changes.
+
+### Added
+- `store/cws-listing.md` and `store/images/`: Chrome Web Store listing text, privacy-tab answers, screenshots and promo tile.
+
 ## [1.3.0] — 2026-11-26
 
 ### Changed

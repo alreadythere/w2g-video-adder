@@ -3,7 +3,7 @@
 A Chrome and Firefox extension that sends YouTube videos to your open [Watch2Gether](https://w2g.tv) room in one click.
 You can **queue** a video at the end of the room's current playlist or **play it now**.
 
-**Current version: 1.3.0 (2026-11-26).** What changed: [extension/CHANGELOG.md](extension/CHANGELOG.md)
+**Current version: 1.3.1 (2026-11-26).** What changed: [extension/CHANGELOG.md](extension/CHANGELOG.md)
 
 ---
 

@@ -42,7 +42,7 @@ async function waitFor(fn, ms = 5000) {
     check("extension loads, service worker running", !!extId, extId);
 
     const mf = await sw.evaluate(() => chrome.runtime.getManifest());
-    check("manifest version 1.3.0 with date", mf.version === "1.3.0" && /2026-11-26/.test(mf.version_name), mf.version_name);
+    check("manifest version 1.3.1 with date", mf.version === "1.3.1" && /2026-11-26/.test(mf.version_name), mf.version_name);
 
     await sw.evaluate(() => chrome.storage.local.set({ apiKey: "E2E_KEY" }));
 
@@ -159,7 +159,7 @@ async function waitFor(fn, ms = 5000) {
       addTitle: document.getElementById("add").title,
       playTitle: document.getElementById("play").title
     }));
-    check("popup shows version + date", p.version === "v1.3.0 (2026-11-26)", p.version);
+    check("popup shows version + date", p.version === "v1.3.1 (2026-11-26)", p.version);
     check("popup shows detected room", p.room === ROOM_KEY.toLowerCase(), p.room);
     check("popup history lists 4 sends, newest first",
       p.items.length === 4 && /added/.test(p.items[0]) && /played/.test(p.items[1]), p.items[0]);

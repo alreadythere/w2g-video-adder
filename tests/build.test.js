@@ -48,3 +48,7 @@ test("source uses the browser/chrome shim everywhere (no bare chrome.* API calls
     assert.deepEqual(bare, [], `${f} has bare chrome.* calls`);
   }
 });
+
+test("manifest description fits the Chrome Web Store's 132-character limit", () => {
+  assert.ok(src.description.length <= 132, `description is ${src.description.length} chars`);
+});
